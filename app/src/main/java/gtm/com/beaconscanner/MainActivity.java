@@ -1,13 +1,16 @@
 package gtm.com.beaconscanner;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.ListView;
 
 import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.BeaconConsumer;
@@ -23,30 +26,29 @@ import org.altbeacon.beacon.client.DataProviderException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class MainActivity extends Activity implements BeaconDataNotifier, BeaconConsumer, RangeNotifier, MonitorNotifier {
+public class MainActivity extends AppCompatActivity implements BeaconDataNotifier, BeaconConsumer, RangeNotifier, MonitorNotifier {
 
 
     private BeaconManager mBeaconManager;
-    String TAG = MainActivity.class.getName();
-    ListView mScannedDevices;
+    private String TAG = MainActivity.class.getName();
+    private ViewPager mPager;
+    private TabLayout mTablLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.main_layout);
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
+        ActionBar mABar = getSupportActionBar();
+        mABar.setHomeAsUpIndicator(R.drawable.ic_action_navigation);
+        mABar.setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        mTablLayout = (TabLayout) findViewById(R.id.id_tabLayout);
+        mPager = (ViewPager) findViewById(R.id.id_viewPager);
+        mPager.setAdapter(new PagerAdapter(getSupportFragmentManager()));
+        mTablLayout.setupWithViewPager(mPager);
 
-
-        setContentView(R.layout.activity_main);
-        Button mBtnScan = (Button) findViewById(R.id.id_scan_button);
-        mScannedDevices = (ListView) findViewById(R.id.id_devices_lv);
-
-
-        mBtnScan.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                // startActivity(new Intent(MainActivity.this, Main2Activity.class));
-            }
-        });
 
     }
 
@@ -58,7 +60,7 @@ public class MainActivity extends Activity implements BeaconDataNotifier, Beacon
         mBeaconManager.getBeaconParsers().add(new BeaconParser().
                 setBeaconLayout(BeaconParser.EDDYSTONE_UID_LAYOUT));
         mBeaconManager.getBeaconParsers().add(new BeaconParser().
-                setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24"));
+                setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24")); // for iBeacon.
        /* mBeaconManager.getBeaconParsers().add(new BeaconParser().
                 setBeaconLayout(BeaconParser.EDDYSTONE_TLM_LAYOUT));
         mBeaconManager.getBeaconParsers().add(new BeaconParser().
@@ -70,6 +72,23 @@ public class MainActivity extends Activity implements BeaconDataNotifier, Beacon
     @Override
     public void beaconDataUpdate(Beacon beacon, BeaconData beaconData, DataProviderException e) {
 
+
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == 1) {
+
+        }
+        return true;
 
     }
 
@@ -98,8 +117,6 @@ public class MainActivity extends Activity implements BeaconDataNotifier, Beacon
 
     @Override
     public void didDetermineStateForRegion(int i, Region region) {
-
-
         Log.i("Main", "didDetermineStateForRegion: " + region.getBluetoothAddress());
     }
 
@@ -118,7 +135,7 @@ public class MainActivity extends Activity implements BeaconDataNotifier, Beacon
             @Override
             public void run() {
                 ArrayAdapter mAdapter = new ArrayAdapter(MainActivity.this, android.R.layout.simple_list_item_1, mlist);
-                mScannedDevices.setAdapter(mAdapter);
+                //mScannedDevices.setAdapter(mAdapter);
 
             }
         });
@@ -126,7 +143,7 @@ public class MainActivity extends Activity implements BeaconDataNotifier, Beacon
         for (Beacon beacon : collection) {
 
 
-           // Log.i(TAG, "didRangeBeaconsInRegion: " + beacon.getId1() + "----" + beacon.getId2() + "---" + beacon.getId3());
+            // Log.i(TAG, "didRangeBeaconsInRegion: " + beacon.getId1() + "----" + beacon.getId2() + "---" + beacon.getId3());
             Log.i(TAG, "didRangeBeaconsInRegion: " + beacon.getServiceUuid());
            /* Log.i(TAG, "didRangeBeaconsInRegion: " + beacon.getBluetoothName());
             Log.i(TAG, "didRangeBeaconsInRegion: " + beacon.getDistance());
